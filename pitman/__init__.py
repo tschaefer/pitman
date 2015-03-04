@@ -5,20 +5,22 @@ import requests
 from clint.textui import progress
 
 
+PODCASTS = {
+    'CLR': 'http://www.cl-rec.com/pod/podcast',
+    'Drumcode': 'http://drumcode.libsyn.com/rss',
+    'Mobilee': 'http://mobilee-records.de/podcast/feed.xml',
+    'RA': 'http://www.residentadvisor.net/xml/podcast.xml',
+    'Sleaze': 'http://sleazerecordsuk.podbean.com/feed/',
+}
+
+
 class Pitman(object):
 
-    PODCASTS = {
-        'CLR': 'http://www.cl-rec.com/pod/podcast',
-        'Drumcode': 'http://drumcode.libsyn.com/rss',
-        'Mobilee': 'http://mobilee-records.de/podcast/feed.xml',
-        'Sleaze': 'http://sleazerecordsuk.podbean.com/feed/',
-    }
-
     def __init__(self, podcast='CLR'):
-        if podcast not in self.PODCASTS.keys():
+        if podcast not in PODCASTS.keys():
             raise IndexError("'%s' unknown Podcast" % (podcast))
         self.podcast = podcast
-        self.url = self.PODCASTS[podcast]
+        self.url = PODCASTS[podcast]
 
     def parse(self):
         raw = feedparser.parse(self.url)
@@ -28,26 +30,30 @@ class Pitman(object):
 
         self.feed = []
         for chunk in raw['entries']:
-            if chunk['title'].startswith('CLR Podcast |'):
-                title = chunk['title'].replace(u'\xa0', u' ')
+            title = chunk['title']
+            if title.startswith('CLR Podcast |'):
+                title = title.replace(u'\xa0', u' ')
                 __, num, artist = title.split(' | ')
-            elif chunk['title'].startswith('CLR Podcast I'):
-                title = chunk['title'].replace(u'\xa0', u' ')
+            elif title.startswith('CLR Podcast I'):
+                title = title.replace(u'\xa0', u' ')
                 __, num, artist = title.split(' I ')
-            elif chunk['title'].startswith('DCR'):
-                num, __, artist = chunk['title'].partition(' - ')
+            elif title.startswith('DCR'):
+                num, __, artist = title.partition(' - ')
                 num = num.lstrip('DCR')
                 artist = artist.partition(' - ')[2]
-            elif chunk['title'].startswith('mobileepod'):
+            elif title.startswith('mobileepod'):
                 artist = chunk['subtitle'].lstrip('presented by')
-                num = int(chunk['title'].split(' ')[1].rstrip(':'))
-            elif chunk['title'].find('Sleaze Podcast') != -1:
-                artist, num = chunk['title'].split(' - Sleaze Podcast ')
+                num = int(title.split(' ')[1].rstrip(':'))
+            elif title.find('Sleaze Podcast') != -1:
+                artist, num = title.split(' - Sleaze Podcast ')
                 num = num[:3]
+            elif title.startswith('RA'):
+                num = title.split('.')[1].split()[0]
+                artist = chunk['author']
             else:
                 continue
 
-            if self.podcast == 'Drumcode' or self.podcast == 'Sleaze':
+            if self.podcast in ['Drumcode', 'RA', 'Sleaze']:
                 link = chunk['links'][1]['href']
             else:
                 link = chunk['links'][0]['href']

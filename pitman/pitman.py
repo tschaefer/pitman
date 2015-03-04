@@ -3,7 +3,7 @@
 
 import sys
 import argparse
-from . import Pitman
+from . import Pitman, PODCASTS
 
 
 def stype(bytestring):
@@ -14,8 +14,8 @@ def stype(bytestring):
 def parse_options():
     parser = argparse.ArgumentParser(description='Dig for your favored '
                                                  'Podcast.')
-    parser.add_argument('-p', '--podcast', type=stype, choices=['CLR',
-                        'Mobilee', 'Drumcode', 'Sleaze'], default='CLR')
+    parser.add_argument('-p', '--podcast', type=stype,
+                        choices=PODCASTS.keys(), default='CLR')
     subparsers = parser.add_subparsers()
 
     parser_show = subparsers.add_parser('show')
