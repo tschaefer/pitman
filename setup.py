@@ -9,8 +9,8 @@ setup(
     author='Tobias Schäfer',
     author_email='pitman@blackox.org',
     url='https://github.com/tschaefer/pitman',
-    description='Lorem Ipsum ...',
+    description='Dig for your favored Podcast.',
     license='BSD',
-    install_requires=['feedparser>=5.1.3', 'requests>=2.4.3'],
+    install_requires=['feedparser>=5.1.3', 'requests>=2.4.3', 'clint>=0.4.1'],
     entry_points={'console_scripts': ['pitman=pitman.pitman:main']}
 )
