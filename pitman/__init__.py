@@ -60,10 +60,10 @@ class Pitman(object):
     def show(self, limit=0, verbose=False):
         total = len(self.feed)
         if limit < 0 or limit > total:
-            raise ValueError("'%d' limit is out of range")
+            raise ValueError("'%d' limit is out of range" % (limit))
 
         for num, entry in enumerate(self.feed):
-            if limit == num:
+            if limit > 0 and limit == num:
                 break
             if not verbose:
                 print '%03d - %s [%d]' % (entry['num'],
