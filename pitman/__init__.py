@@ -11,6 +11,7 @@ PODCASTS = {
     'Mobilee': 'http://mobilee-records.de/podcast/feed.xml',
     'RA': 'http://www.residentadvisor.net/xml/podcast.xml',
     'Sleaze': 'http://sleazerecordsuk.podbean.com/feed/',
+    'Systematic': 'http://www.deejay-net.info/systpod/feed.xml',
 }
 
 
@@ -50,10 +51,18 @@ class Pitman(object):
             elif title.startswith('RA'):
                 num = title.split('.')[1].split()[0]
                 artist = chunk['author']
+            elif title.startswith('Systematic'):
+                num = title.split()[2][1:]
+                if not num:
+                    continue
+                if chunk['subtitle'].find('by') != -1:
+                    artist = chunk['subtitle'].split(' by ')[1]
+                else:
+                    artist = u'Marc Romboy'
             else:
                 continue
 
-            if self.podcast in ['Drumcode', 'RA', 'Sleaze']:
+            if self.podcast in ['Drumcode', 'RA', 'Systematic', 'Sleaze']:
                 link = chunk['links'][1]['href']
             else:
                 link = chunk['links'][0]['href']
