@@ -12,7 +12,8 @@ def stype(bytestring):
 
 
 def parse_options():
-    parser = argparse.ArgumentParser(description='CLR Podcast tool.')
+    parser = argparse.ArgumentParser(description='Dig for your favored '
+                                                 'Podcast.')
     parser.add_argument('-p', '--podcast', type=stype, choices=['CLR',
                         'Mobilee', 'Drumcode', 'Sleaze'], default='CLR')
     subparsers = parser.add_subparsers()
