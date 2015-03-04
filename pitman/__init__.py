@@ -82,7 +82,7 @@ class Pitman(object):
                     print ("%03d - %s [%d]" % (entry['num'], entry['artist'],
                            entry['date'].tm_year))
 
-    def get_episodes(self, episodes):
+    def get(self, episodes):
         for episode in episodes:
             for c, e in enumerate(self.feed):
                 if e['num'] == episode:
