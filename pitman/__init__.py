@@ -8,6 +8,7 @@ from clint.textui import progress
 PODCASTS = {
     'CLR': 'http://www.cl-rec.com/pod/podcast',
     'Drumcode': 'http://drumcode.libsyn.com/rss',
+    'ElektronicForce': 'http://marcobailey.podomatic.com/rss2.xml',
     'Mobilee': 'http://mobilee-records.de/podcast/feed.xml',
     'RA': 'http://www.residentadvisor.net/xml/podcast.xml',
     'Sleaze': 'http://sleazerecordsuk.podbean.com/feed/',
@@ -59,13 +60,19 @@ class Pitman(object):
                     artist = chunk['subtitle'].split(' by ')[1]
                 else:
                     artist = u'Marc Romboy'
+            elif title.startswith('Elektronic Force Podcast'):
+                    num = title.split()[3]
+                    if title.find('with') != -1:
+                        artist = title.split(' with ')[1]
+                    else:
+                        artist = 'Marco Bailey'
             else:
                 continue
 
-            if self.podcast in ['Drumcode', 'RA', 'Systematic', 'Sleaze']:
-                link = chunk['links'][1]['href']
-            else:
+            if self.podcast in ['CLR', 'Mobilee']:
                 link = chunk['links'][0]['href']
+            else:
+                link = chunk['links'][1]['href']
 
             date = chunk['published_parsed']
             entry = {'num': int(num), 'artist': artist, 'link': link,
