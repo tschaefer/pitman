@@ -7,6 +7,7 @@ from clint.textui import progress
 
 PODCASTS = {
     'CLR': 'http://www.cl-rec.com/pod/podcast',
+    'Druckpunkt': 'https://hearthis.at/druckpunkt/rss/',
     'Drumcode': 'http://drumcode.libsyn.com/rss',
     'ElektronicForce': 'http://marcobailey.podomatic.com/rss2.xml',
     'Mobilee': 'http://mobilee-records.de/podcast/feed.xml',
@@ -66,11 +67,19 @@ class Pitman(object):
                         artist = title.split(' with ')[1]
                     else:
                         artist = 'Marco Bailey'
+            elif title.startswith('[dppc#'):
+                num = title.split()[0].rstrip(']:')[6:]
+                artist = title.split(' von ')[0].split(' ', 1)[1].title()
             else:
                 continue
 
-            if self.podcast in ['CLR', 'Mobilee']:
+            if self.podcast in ['CLR', 'Mobilee', 'Druckpunkt']:
                 link = chunk['links'][0]['href']
+                if self.podcast == 'Druckpunkt':
+                    url = 'http://download2.hearthis.at/'
+                    root = link.split('/')[3]
+                    pod = link.split('/')[4]
+                    link = '%s/?track=%s/%s' % (url, root, pod)
             else:
                 link = chunk['links'][1]['href']
 
