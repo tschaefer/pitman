@@ -6,6 +6,7 @@ from clint.textui import progress
 
 
 PODCASTS = {
+    'AMFM': 'http://www.cl-rec.com/pod/podcast',
     'CLR': 'http://www.cl-rec.com/pod/podcast',
     'Druckpunkt': 'https://hearthis.at/druckpunkt/rss/',
     'Drumcode': 'http://drumcode.libsyn.com/rss',
@@ -14,6 +15,7 @@ PODCASTS = {
     'RA': 'http://www.residentadvisor.net/xml/podcast.xml',
     'Sleaze': 'http://sleazerecordsuk.podbean.com/feed/',
     'Systematic': 'http://www.deejay-net.info/systpod/feed.xml',
+    'Tronic': 'http://syndicast.co.uk/distribution/show/rss/tronic-radio',
 }
 
 
@@ -25,7 +27,7 @@ class Pitman(object):
         self.podcast = podcast
         self.url = PODCASTS[podcast]
 
-    def parse(self):
+    def parse(self, podcast='CLR'):
         raw = feedparser.parse(self.url)
         if raw['status'] != 200 and raw['status'] != 301:
             raise RuntimeError("Failed to fetch RSS feed '%s',"
@@ -34,10 +36,10 @@ class Pitman(object):
         self.feed = []
         for chunk in raw['entries']:
             title = chunk['title']
-            if title.startswith('CLR Podcast |'):
+            if podcast == 'CLR' and title.startswith('CLR Podcast |'):
                 title = title.replace(u'\xa0', u' ')
                 __, num, artist = title.split(' | ')
-            elif title.startswith('CLR Podcast I'):
+            elif podcast == 'CLR' and title.startswith('CLR Podcast I'):
                 title = title.replace(u'\xa0', u' ')
                 __, num, artist = title.split(' I ')
             elif title.startswith('DCR'):
@@ -48,6 +50,7 @@ class Pitman(object):
                 artist = chunk['subtitle'].lstrip('presented by')
                 num = int(title.split(' ')[1].rstrip(':'))
             elif title.find('Sleaze Podcast') != -1:
+                title = title.replace('(PT)', '-')
                 artist, num = title.split(' - Sleaze Podcast ')
                 num = num[:3]
             elif title.startswith('RA'):
@@ -70,16 +73,24 @@ class Pitman(object):
             elif title.startswith('[dppc#'):
                 num = title.split()[0].rstrip(']:')[6:]
                 artist = title.split(' von ')[0].split(' ', 1)[1].title()
+            elif title.startswith('Tronic Radio'):
+                num = title.split()[2].strip()
+                artist = title.split('|')[1].strip()
+            elif podcast == 'AMFM' and title.startswith('am/fm'):
+                num = title.split('|')[1][:4]
+                artist = 'Chris Liebing'
             else:
                 continue
 
-            if self.podcast in ['CLR', 'Mobilee', 'Druckpunkt']:
+            if self.podcast in ['CLR', 'Mobilee', 'Druckpunkt', 'AMFM']:
                 link = chunk['links'][0]['href']
                 if self.podcast == 'Druckpunkt':
                     url = 'http://download2.hearthis.at/'
                     root = link.split('/')[3]
                     pod = link.split('/')[4]
                     link = '%s/?track=%s/%s' % (url, root, pod)
+            elif self.podcast == 'Tronic':
+                link = chunk['links'][0]['href']
             else:
                 link = chunk['links'][1]['href']
 
@@ -123,7 +134,10 @@ class Pitman(object):
                 url = self.feed[episode]['link']
             except IndexError:
                 raise IndexError("No such episode found, '%d'" % (episode))
-            filename = url.split('/')[-1]
+            filename = '%03d - %s - %d.mp3' % \
+                (self.feed[episode]['num'],
+                 self.feed[episode]['artist'].encode('utf-8'),
+                 self.feed[episode]['date'].tm_year)
             stream = requests.get(url, stream=True)
             total_length = int(stream.headers.get('content-length'))
 

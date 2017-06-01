@@ -40,7 +40,7 @@ def parse_options():
 
 def run(args):
     pitman = Pitman(args.podcast)
-    pitman.parse()
+    pitman.parse(args.podcast)
     if hasattr(args, 'show'):
         pitman.show(args.limit, args.verbose)
     elif hasattr(args, 'search'):
