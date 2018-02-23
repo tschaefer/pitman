@@ -15,7 +15,7 @@ PODCASTS = {
     'RA': 'http://www.residentadvisor.net/xml/podcast.xml',
     'Sleaze': 'http://sleazerecordsuk.podbean.com/feed/',
     'Systematic': 'http://www.deejay-net.info/systpod/feed.xml',
-    'Tronic': 'http://syndicast.co.uk/distribution/show/rss/tronic-radio',
+    'Tronic': 'https://syndicast.co.uk/distribution/show/rss/tronic-radio',
 }
 
 
@@ -28,10 +28,11 @@ class Pitman(object):
         self.url = PODCASTS[podcast]
 
     def parse(self, podcast='CLR'):
-        raw = feedparser.parse(self.url)
-        if raw['status'] != 200 and raw['status'] != 301:
+        req = requests.get(self.url)
+        if req.status_code != 200:
             raise RuntimeError("Failed to fetch RSS feed '%s',"
-                               "'http error %s'" % (self.url, raw['status']))
+                               "'http error %d'" % (self.url, req.status_code))
+        raw = feedparser.parse(req.text)
 
         self.feed = []
         for chunk in raw['entries']:
@@ -77,7 +78,10 @@ class Pitman(object):
                 num = title.split()[2].strip()
                 artist = title.split('|')[1].strip()
             elif podcast == 'AMFM' and title.startswith('am/fm'):
-                num = title.split('|')[1][:4]
+                if title.find('|') > 0:
+                    num = title.split('|')[1][:4]
+                else:
+                    num = title.split()[1]
                 artist = 'Chris Liebing'
             else:
                 continue
