@@ -140,9 +140,10 @@ class Pitman(object):
                 raise IndexError("No such episode found, '%d'" % (episode))
             filename = '%03d - %s - %d.mp3' % \
                 (self.feed[episode]['num'],
-                 self.feed[episode]['artist'].encode('utf-8'),
+                 self.feed[episode]['artist'].encode('utf-8').
+                 replace('/', '_'),
                  self.feed[episode]['date'].tm_year)
-            stream = requests.get(url, stream=True)
+            stream = requests.get(url, stream=True, allow_redirects=True)
             total_length = int(stream.headers.get('content-length'))
 
             with open(filename, 'wb') as f:
